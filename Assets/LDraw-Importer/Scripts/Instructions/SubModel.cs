@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Linq;
-using UnityEditor.UIElements;
 using UnityEngine;
 
 namespace LDraw
@@ -156,21 +155,18 @@ namespace LDraw
 
         public Step GetCurrentStep()
         {
-            for (int i = currPartIdx; i < transform.childCount; i++)
+            Transform currPart = transform.GetChild(currPartIdx);
+
+            Step currentStep = currPart.GetComponent<Step>();
+            if (currentStep != null)
             {
-                Transform currPart = transform.GetChild(i);
+                return currentStep;
+            }
 
-                Step currentStep = currPart.GetComponent<Step>();
-                if (currentStep != null)
-                {
-                    return currentStep;
-                }
-
-                SubModel currentSubModel = currPart.GetComponent<SubModel>();
-                if (currentSubModel != null)
-                {
-                    return currentSubModel.GetCurrentStep();
-                }
+            SubModel currentSubModel = currPart.GetComponent<SubModel>();
+            if (currentSubModel != null)
+            {
+                return currentSubModel.GetCurrentStep();
             }
 
             return null;
