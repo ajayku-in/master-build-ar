@@ -148,7 +148,7 @@ public class TrackedInstructionManager : MonoBehaviour
     void UpdateModel(ARTrackedImage trackedImage)
     {
         int imageId = int.Parse(trackedImage.referenceImage.name);
-        if (imageId < 5 && model == null)
+        if (imageId == 1 && model == null)
         {
             model = Instantiate(modelPrefab);
             model.transform.localScale = Vector3.one * modelScale;

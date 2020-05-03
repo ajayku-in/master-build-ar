@@ -413,9 +413,9 @@ MonoBehaviour:
   defaultTexture: {fileID: 10309, guid: 0000000000000000f000000000000000, type: 0}
   modelPrefab: {fileID: 7688940818354290255, guid: 495385615594a494a95c048d4698639f,
     type: 3}
-  modelOffset: {x: 0, y: 0.001, z: 0}
+  modelOffset: {x: 0, y: 0.01, z: 0}
   rotationOffset: {x: 0, y: 0, z: 180}
-  modelScale: 0.0005
+  modelScale: 0.0003
 --- !u!1 &2095060940
 GameObject:
   m_ObjectHideFlags: 0

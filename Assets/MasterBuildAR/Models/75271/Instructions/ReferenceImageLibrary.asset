@@ -26,16 +26,6 @@ MonoBehaviour:
     m_Name: 1
     m_Texture: {fileID: 2800000, guid: 245d666ad3e1fb64cae87b248d6b5666, type: 3}
   - m_SerializedGuid:
-      m_GuidLow: 5761923861898381253
-      m_GuidHigh: 13418869328051604368
-    m_SerializedTextureGuid:
-      m_GuidLow: 11201817516684283366
-      m_GuidHigh: 5512533205274107515
-    m_Size: {x: 0.19499491, y: 0.125}
-    m_SpecifySize: 1
-    m_Name: 3
-    m_Texture: {fileID: 2800000, guid: 80b70de6d9ae9b747b9ee858be73804c, type: 3}
-  - m_SerializedGuid:
       m_GuidLow: 5447394438617094390
       m_GuidHigh: 13438155774933571717
     m_SerializedTextureGuid:
@@ -64,7 +54,7 @@ MonoBehaviour:
     m_Size: {x: 0.19499491, y: 0.125}
     m_SpecifySize: 1
     m_Name: 9
-    m_Texture: {fileID: 0}
+    m_Texture: {fileID: 2800000, guid: 829da557ebe644d4ebda79964b0acdf2, type: 3}
   - m_SerializedGuid:
       m_GuidLow: 5640260371071628996
       m_GuidHigh: 17192383132145727654
