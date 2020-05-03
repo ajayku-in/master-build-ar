@@ -6,13 +6,23 @@ using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.ARFoundation;
 using LDraw;
 
+/// <summary>
 /// This component listens for images detected by the <c>XRImageTrackingSubsystem</c>
 /// and overlays some information as well as the source Texture2D on top of the
 /// detected image.
+/// 
+/// Also Listens for touch events and performs an AR raycast from the screen touch point.
+/// AR raycasts will only hit detected trackables like feature points and planes.
 /// </summary>
 [RequireComponent(typeof(ARTrackedImageManager))]
+[RequireComponent(typeof(ARRaycastManager))]
 public class TrackedInstructionManager : MonoBehaviour
 {
+    const float MODEL_MOVEMENT_SPEED = 10f;
+    const float MODEL_ROTATION_SPEED = 15f;
+
+    static readonly Vector3 MODEL_BASE_SCALE = new Vector3(-1f, 1f, 1f);
+
     [SerializeField]
     [Tooltip("The camera to set on the world space UI canvas for each instantiated image info.")]
     Camera worldSpaceCanvasCamera;
@@ -41,11 +51,7 @@ public class TrackedInstructionManager : MonoBehaviour
         set { defaultTexture = value; }
     }
 
-    ARTrackedImageManager trackedImageManager;
-
-    ARTrackedImage currentInsruction = null;
-
-    // TODO tooltops etc...
+    // TODO tooltops etc... for publics
 
     public GameObject modelPrefab;
 
@@ -55,47 +61,58 @@ public class TrackedInstructionManager : MonoBehaviour
 
     public float modelScale = 0.0005f;
 
+    // Internal state
+
+    ARTrackedImageManager trackedImageManager;
+
+    ARTrackedImage currentInsruction = null;
+
+    ARRaycastManager raycastManager;
+
+    static List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
+
     GameObject model = null;
 
     Stepper stepper = null;
 
-    Dictionary<int, string[]> stepMapping = new Dictionary<int, string[]>()
+    Dictionary<int, string> stepMapping = new Dictionary<int, string>()
     {
-        { 7, new string[] { "1.4", "1.5" } },
-        { 9, new string[] { "1.8", "1.9" } },
-        { 11, new string[] { "2.1", "2.2", "2.3" } },
-        { 13, new string[] { "2.6", "2.7" } },
-        { 15, new string[] { "2.9.1" } },
-        { 17, new string[] { "2.10.3", "2.10.4", "2.10.5", "2.10.6" } },
-        { 19, new string[] { "2.13" } },
-        { 21, new string[] { "2.16" } },
-        { 23, new string[] { "2.18" } },
-        { 25, new string[] { "2.20" } },
-        { 27, new string[] { "2.22" } },
-        { 29, new string[] { "2.24" } },
-        { 31, new string[] { "2.25.5" } },
-        { 33, new string[] { "2.26.5" } },
-        { 35, new string[] { "2.27" } },
-        { 37, new string[] { "2.29" } },
-        { 39, new string[] { "2.31" } },
-        { 41, new string[] { "2.33" } },
-        { 43, new string[] { "2.35", "2.36", "2.37" } },
-        { 45, new string[] { "2.40.3", "2.40.4", "2.40.5", "2.41.1", "2.41.3" } },
-        { 47, new string[] { "2.43", "2.44", "2.45", "2.46" } },
-        { 49, new string[] { "2.48.3", "2.48.4", "2.49.1", "2.49.3" } },
-        { 51, new string[] { "2.51" } },
-        { 53, new string[] { "2.53" } },
-        { 55, new string[] { "2.55.1", "2.55.2", "2.55.3", "2.55.4", "2.55.5" } },
-        { 57, new string[] { "2.56" } },
-        { 59, new string[] { "2.58" } },
-        { 61, new string[] { "2.60", "2.61", "2.62" } },
-        { 63, new string[] { "2.64.1", "2.64.3" } },
-        { 65, new string[] { "2.66" } }
+        { 7, "1.4" },
+        { 9, "1.8" },
+        { 11, "2.1" },
+        { 13, "2.6" },
+        { 15, "2.9.1" },
+        { 17, "2.10.3" },
+        { 19, "2.13" },
+        { 21, "2.16" },
+        { 23, "2.18" },
+        { 25, "2.20" },
+        { 27, "2.22" },
+        { 29, "2.24" },
+        { 31, "2.25.5" },
+        { 33, "2.26.5" },
+        { 35, "2.27" },
+        { 37, "2.29" },
+        { 39, "2.31" },
+        { 41, "2.33" },
+        { 43, "2.35" },
+        { 45, "2.40.3" },
+        { 47, "2.43" },
+        { 49, "2.48.3" },
+        { 51, "2.51" },
+        { 53, "2.53" },
+        { 55, "2.55.1" },
+        { 57, "2.56" },
+        { 59, "2.58" },
+        { 61, "2.60" },
+        { 63, "2.64.1" },
+        { 65, "2.66" }
     };
 
     void Awake()
     {
         trackedImageManager = GetComponent<ARTrackedImageManager>();
+        raycastManager = GetComponent<ARRaycastManager>();
     }
 
     void OnEnable()
@@ -114,9 +131,56 @@ public class TrackedInstructionManager : MonoBehaviour
             currentInsruction != null && 
             currentInsruction.trackingState == TrackingState.Tracking)
         {
-            model.transform.rotation = currentInsruction.transform.rotation * Quaternion.Euler(rotationOffset);
-            model.transform.position = currentInsruction.transform.position + modelOffset;
+            Quaternion targetRotation = currentInsruction.transform.rotation * Quaternion.Euler(rotationOffset);
+            Vector3 targetPosition = currentInsruction.transform.position + modelOffset;
+            model.transform.rotation = Quaternion.RotateTowards(model.transform.rotation, targetRotation, MODEL_ROTATION_SPEED * Time.deltaTime);
+            model.transform.position = Vector3.MoveTowards(model.transform.position, targetPosition, MODEL_MOVEMENT_SPEED * Time.deltaTime);
         }
+
+        if (stepper != null &&
+            TryGetTouchPosition(out Vector2 touchPosition) &&
+            raycastManager.Raycast(touchPosition, raycastHits, TrackableType.Image))
+        {
+            // Raycast hits are sorted by distance, so the first one
+            // will be the closest hit.
+            var hitPose = raycastHits[0].pose;
+
+            // TODO: Use hitpose to determine forward or back
+            stepper.NextStep();
+        }
+    }
+    bool TryGetTouchPosition(out Vector2 touchPosition)
+    {
+#if UNITY_EDITOR
+        if (Input.GetMouseButton(0))
+        {
+            var mousePosition = Input.mousePosition;
+            touchPosition = new Vector2(mousePosition.x, mousePosition.y);
+            return true;
+        }
+#else
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+            if (touch.phase == TouchPhase.Began) {
+                touchPosition = touch.position;
+                return true;
+            }
+        }
+#endif
+
+        touchPosition = default;
+        return false;
+    }
+
+    void SetupInstruction(ARTrackedImage trackedImage)
+    {
+        // Set the world space camera on the canvas
+        var canvas = trackedImage.GetComponentInChildren<Canvas>();
+        canvas.worldCamera = WorldSpaceCanvasCamera;
+
+        // Give the initial image a reasonable default scale
+        trackedImage.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
     }
 
     void UpdateInstruction(ARTrackedImage trackedImage)
@@ -126,13 +190,13 @@ public class TrackedInstructionManager : MonoBehaviour
         var canvasGroup = trackedImage.GetComponentInChildren<CanvasGroup>();
 
         // Disable/Enable the visuals based on if this is the current instruction and it is tracked
-        if (trackedImage == currentInsruction && trackedImage.trackingState == TrackingState.Tracking)
+        if (trackedImage == currentInsruction && trackedImage.trackingState != TrackingState.None)
         {
             planeGo.SetActive(true);
             canvasGroup.alpha = 1f;
 
             // The image extents is only valid when the image is being tracked
-            trackedImage.transform.localScale = new Vector3(trackedImage.size.x, 1f, trackedImage.size.y);
+            trackedImage.transform.localScale = new Vector3(trackedImage.size.x, trackedImage.size.y, trackedImage.size.y);
 
             // Set the texture
             var material = planeGo.GetComponentInChildren<MeshRenderer>().material;
@@ -151,19 +215,19 @@ public class TrackedInstructionManager : MonoBehaviour
         if (imageId == 1 && model == null)
         {
             model = Instantiate(modelPrefab);
-            model.transform.localScale = Vector3.one * modelScale;
+            model.transform.localScale = MODEL_BASE_SCALE * modelScale;
 
             stepper = model.GetComponent<Stepper>();
         }
 
-        else if (imageId == 5 && model != null)
+        else if (imageId == 5 && stepper != null)
         {
             stepper.ClearSteps();
         }
 
         else if (stepper != null && stepMapping.ContainsKey(imageId))
         {
-            stepper.GoToStep(stepMapping[imageId][0]);
+            stepper.GoToStep(stepMapping[imageId]);
         }
     }
 
@@ -173,18 +237,11 @@ public class TrackedInstructionManager : MonoBehaviour
         {
             currentInsruction = trackedImage;
 
-            // Set the world space camera on the canvas
-            var canvas = trackedImage.GetComponentInChildren<Canvas>();
-            canvas.worldCamera = WorldSpaceCanvasCamera;
-
-            // Give the initial image a reasonable default scale
-            trackedImage.transform.localScale = new Vector3(0.01f, 1f, 0.01f);
-
-            UpdateModel(trackedImage);
+            SetupInstruction(trackedImage);
 
             UpdateInstruction(trackedImage);
 
-            Debug.Log("Added: " + trackedImage.name);
+            UpdateModel(trackedImage);
 
             break;
         }
@@ -196,7 +253,7 @@ public class TrackedInstructionManager : MonoBehaviour
 
         foreach (var trackedImage in eventArgs.removed)
         {
-            Debug.Log("Removed: " + trackedImage.name);
+            // Does not get invoked when the image goes out of view
         }
     }
 }

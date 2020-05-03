@@ -343,6 +343,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1772391006}
   - component: {fileID: 1772391005}
+  - component: {fileID: 1772391011}
   - component: {fileID: 1772391007}
   - component: {fileID: 1772391008}
   m_Layer: 0
@@ -415,7 +416,19 @@ MonoBehaviour:
     type: 3}
   modelOffset: {x: 0, y: 0.01, z: 0}
   rotationOffset: {x: 0, y: 0, z: 180}
-  modelScale: 0.0003
+  modelScale: 0.0004
+--- !u!114 &1772391011
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1772391004}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa17d122634046b4a8e23048891fafc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2095060940
 GameObject:
   m_ObjectHideFlags: 0

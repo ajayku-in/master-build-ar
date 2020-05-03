@@ -23,7 +23,7 @@ namespace LDraw
             }
         }
 
-        public string ClearSteps(string stepNumberPrefix)
+        public string PrepareSteps(string stepNumberPrefix, bool clear)
         {
             currPartIdx = 0;
             int stepNumber = 1;
@@ -63,11 +63,11 @@ namespace LDraw
                 SubModel nestedSubModel = currPart.GetComponent<SubModel>();
                 if (nestedSubModel != null)
                 {
-                    nestedSubModelLastStepNumber = nestedSubModel.ClearSteps(stepNumberPrefix + stepNumber);
+                    nestedSubModelLastStepNumber = nestedSubModel.PrepareSteps(stepNumberPrefix + stepNumber, clear);
                     continue;
                 }
 
-                currPart.gameObject.SetActive(false);
+                currPart.gameObject.SetActive(!clear);
             }
 
             currPartIdx = 0;

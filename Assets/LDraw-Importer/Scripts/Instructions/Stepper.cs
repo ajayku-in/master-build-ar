@@ -17,6 +17,7 @@ namespace LDraw
         void Start()
         {
             rootModel = GetComponent<SubModel>();
+            rootModel.PrepareSteps("", false);
         }
 
         // Update is called once per frame
@@ -29,12 +30,12 @@ namespace LDraw
 
             if (ready && Input.GetKeyDown(KeyCode.F))
             {
-                rootModel.NextStep();
+                NextStep();
             }
 
             if (ready && Input.GetKeyDown(KeyCode.R))
             {
-                rootModel.PreviousStep();
+                PreviousStep();
             }
 
             if (ready && Input.GetKeyDown(KeyCode.X))
@@ -45,13 +46,23 @@ namespace LDraw
 
         public void ClearSteps()
         {
-            rootModel.ClearSteps("");
+            rootModel.PrepareSteps("", true);
             ready = true;
         }
 
         public Step GetCurrentStep()
         {
             return rootModel.GetCurrentStep();
+        }
+
+        public void NextStep()
+        {
+            rootModel.NextStep();
+        }
+
+        public void PreviousStep()
+        {
+            rootModel.PreviousStep();
         }
 
         public void GoToStep(string stepNumber)
