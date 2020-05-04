@@ -188,6 +188,7 @@ public class TrackedInstructionManager : MonoBehaviour
         var planeParentGo = trackedImage.transform.GetChild(0).gameObject;
         var planeGo = planeParentGo.transform.GetChild(0).gameObject;
         var canvasGroup = trackedImage.GetComponentInChildren<CanvasGroup>();
+        var text = trackedImage.GetComponentInChildren<Text>();
 
         // Disable/Enable the visuals based on if this is the current instruction and it is tracked
         if (trackedImage == currentInsruction && trackedImage.trackingState != TrackingState.None)
@@ -201,6 +202,11 @@ public class TrackedInstructionManager : MonoBehaviour
             // Set the texture
             var material = planeGo.GetComponentInChildren<MeshRenderer>().material;
             material.mainTexture = (trackedImage.referenceImage.texture == null) ? DefaultTexture : trackedImage.referenceImage.texture;
+
+            if (stepper != null)
+            {
+                text.text = "Step: " + stepper.GetCurrentStep().number;
+            }
         }
         else
         {
