@@ -19,6 +19,6 @@ To try this project in AR check out the repository and switch to the Android  or
 
 ### Repositories
 
-AR Foundation Samples: https://github.com/arjundube/arfoundation-samples
+AR Foundation Samples: https://github.com/Unity-Technologies/arfoundation-samples
 
 LDraw Importer: https://github.com/arjundube/LDraw_Importer_Unity
