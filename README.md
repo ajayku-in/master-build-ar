@@ -7,7 +7,7 @@ To try this project in AR check out the repository and switch to the Android  or
 
 ## Adding another model to the projcet
 
-* Download the mdl file for the model from your repository of choice and place it under **LDrawFiles\blueprints\models**. Then when you open Unity you can use the **LDrawImporter** menu to bring in your model following their documentation linked below
+* Download the mdl file for the model from your repository of choice and place it under **LDrawFiles\blueprints\models**. Then when you open Unity you can use the **LDrawImporter** window to bring in your model following the documentation linked below
 * Update the **Step** GameObjects in the created model to specify animations or step numbers other than the default ones
 * Use the PowerShell script **InstructionFiles\GetInstructions.ps1** to download instructions by specifying **-SetId** and **-NumPages** (So long as they are present on https://lego.brickinstructions.com)
 * Add a new **Reference Image library** with the instruction pages include in it and named according to their page number
@@ -17,8 +17,16 @@ To try this project in AR check out the repository and switch to the Android  or
 
 ## References
 
+### Tutorials
+
+Video tutorial for using this repo: Coming Soon
+
 ### Repositories
 
 AR Foundation Samples: https://github.com/Unity-Technologies/arfoundation-samples
 
 LDraw Importer: https://github.com/arjundube/LDraw_Importer_Unity
+
+### APIs
+
+AR Foundation: https://docs.unity3d.com/Packages/com.unity.xr.arfoundation@4.0/manual/index.html
