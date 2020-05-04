@@ -6,76 +6,18 @@ using UnityEngine.XR.ARSubsystems;
 using UnityEngine.XR.ARFoundation;
 using LDraw;
 
-/// <summary>
-/// This component listens for images detected by the <c>XRImageTrackingSubsystem</c>
-/// and overlays some information as well as the source Texture2D on top of the
-/// detected image.
-/// 
-/// Also Listens for touch events and performs an AR raycast from the screen touch point.
-/// AR raycasts will only hit detected trackables like feature points and planes.
-/// </summary>
 [RequireComponent(typeof(ARTrackedImageManager))]
 [RequireComponent(typeof(ARRaycastManager))]
 public class TrackedInstructionManager : MonoBehaviour
 {
+    // Constants
+
     const float MODEL_MOVEMENT_SPEED = 10f;
     const float MODEL_ROTATION_SPEED = 15f;
 
     static readonly Vector3 MODEL_BASE_SCALE = new Vector3(-1f, 1f, 1f);
 
-    [SerializeField]
-    [Tooltip("The camera to set on the world space UI canvas for each instantiated image info.")]
-    Camera worldSpaceCanvasCamera;
-
-    /// <summary>
-    /// The prefab has a world space UI canvas,
-    /// which requires a camera to function properly.
-    /// </summary>
-    public Camera WorldSpaceCanvasCamera
-    {
-        get { return worldSpaceCanvasCamera; }
-        set { worldSpaceCanvasCamera = value; }
-    }
-
-    [SerializeField]
-    [Tooltip("If an image is detected but no source texture can be found, this texture is used instead.")]
-    Texture2D defaultTexture;
-
-    /// <summary>
-    /// If an image is detected but no source texture can be found,
-    /// this texture is used instead.
-    /// </summary>
-    public Texture2D DefaultTexture
-    {
-        get { return defaultTexture; }
-        set { defaultTexture = value; }
-    }
-
-    // TODO tooltops etc... for publics
-
-    public GameObject modelPrefab;
-
-    public Vector3 modelOffset = new Vector3(0f, 0.01f, 0f);
-
-    public Vector3 rotationOffset = new Vector3(0f, 0f, 180f);
-
-    public float modelScale = 0.0005f;
-
-    // Internal state
-
-    ARTrackedImageManager trackedImageManager;
-
-    ARTrackedImage currentInsruction = null;
-
-    ARRaycastManager raycastManager;
-
-    static List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
-
-    GameObject model = null;
-
-    Stepper stepper = null;
-
-    Dictionary<int, string> stepMapping = new Dictionary<int, string>()
+    static readonly Dictionary<int, string> stepMapping = new Dictionary<int, string>()
     {
         { 7, "1.4" },
         { 9, "1.8" },
@@ -108,6 +50,48 @@ public class TrackedInstructionManager : MonoBehaviour
         { 63, "2.64.1" },
         { 65, "2.66" }
     };
+
+    // Inspector fields
+
+    [SerializeField]
+    [Tooltip("The camera to set on the world space UI canvas for each instantiated image info.")]
+    Camera worldSpaceCanvasCamera;
+
+    [SerializeField]
+    [Tooltip("If an image is detected but no source texture can be found, this texture is used instead.")]
+    Texture2D defaultTexture;
+
+    [SerializeField]
+    [Tooltip("Model to instantiate when the first page of the instruction is detected.")]
+    GameObject modelPrefab;
+
+    [SerializeField]
+    [Tooltip("Position offset of the model from the detected image.")]
+    Vector3 modelOffset = new Vector3(0f, 0.01f, 0f);
+
+    [SerializeField]
+    [Tooltip("Rotation offset of the model from the detected image.")]
+    Vector3 rotationOffset = new Vector3(0f, 0f, 180f);
+
+    [SerializeField]
+    [Tooltip("Scale of the model.")]
+    float modelScale = 0.0005f;
+
+    // Internal state
+
+    ARTrackedImageManager trackedImageManager;
+
+    ARTrackedImage currentInsruction = null;
+
+    ARRaycastManager raycastManager;
+
+    List<ARRaycastHit> raycastHits = new List<ARRaycastHit>();
+
+    GameObject model = null;
+
+    Stepper stepper = null;
+
+    // Unity lifecycle methods
 
     void Awake()
     {
@@ -145,10 +129,13 @@ public class TrackedInstructionManager : MonoBehaviour
             // will be the closest hit.
             var hitPose = raycastHits[0].pose;
 
-            // TODO: Use hitpose to determine forward or back
+            // Advance to the next step
             stepper.NextStep();
         }
     }
+
+    // Helper methods
+
     bool TryGetTouchPosition(out Vector2 touchPosition)
     {
 #if UNITY_EDITOR
@@ -177,7 +164,7 @@ public class TrackedInstructionManager : MonoBehaviour
     {
         // Set the world space camera on the canvas
         var canvas = trackedImage.GetComponentInChildren<Canvas>();
-        canvas.worldCamera = WorldSpaceCanvasCamera;
+        canvas.worldCamera = worldSpaceCanvasCamera;
 
         // Give the initial image a reasonable default scale
         trackedImage.transform.localScale = new Vector3(0.01f, 0.01f, 0.01f);
@@ -201,11 +188,12 @@ public class TrackedInstructionManager : MonoBehaviour
 
             // Set the texture
             var material = planeGo.GetComponentInChildren<MeshRenderer>().material;
-            material.mainTexture = (trackedImage.referenceImage.texture == null) ? DefaultTexture : trackedImage.referenceImage.texture;
+            material.mainTexture = (trackedImage.referenceImage.texture == null) ? defaultTexture : trackedImage.referenceImage.texture;
 
+            // Update the step number
             if (stepper != null)
             {
-                text.text = "Step: " + stepper.GetCurrentStep().number;
+                text.text = "Step: " + stepper.GetCurrentStep().Number;
             }
         }
         else

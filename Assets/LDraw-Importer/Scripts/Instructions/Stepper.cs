@@ -7,20 +7,35 @@ namespace LDraw
     [RequireComponent(typeof(SubModel))]
     public class Stepper : MonoBehaviour
     {
+        // Constants
+
         private const float STEP_SPEED = 0.2f;
 
-        public bool ready = false;
-        public string goToStep = "2.67";
+        // Inspector fields
 
-        private SubModel rootModel;
+        [SerializeField]
+        [Tooltip("The step to go to when X is pressed.")]
+        string goToStep = "2.67";
+
+        // Internal state
+
+        SubModel rootModel;
+
+        bool ready = false;
+
+        // Unity lifecycle methods
+
+        void Awake()
+        {
+            rootModel = GetComponent<SubModel>();
+            rootModel.IsRoot = true;
+        }
 
         void Start()
         {
-            rootModel = GetComponent<SubModel>();
             rootModel.PrepareSteps("", false);
         }
 
-        // Update is called once per frame
         void Update()
         {
             if (Input.GetKeyDown(KeyCode.C))
@@ -50,6 +65,8 @@ namespace LDraw
             ready = true;
         }
 
+        // Public methods
+
         public Step GetCurrentStep()
         {
             return rootModel.GetCurrentStep();
@@ -71,7 +88,9 @@ namespace LDraw
             StartCoroutine(GoToStepCoroutine(stepNumber));
         }
 
-        public IEnumerator GoToStepCoroutine(string stepNumber)
+        // Helper methods
+
+        IEnumerator GoToStepCoroutine(string stepNumber)
         {
             // TODO: Validate that the step number exists
             Step currentStep = GetCurrentStep();
@@ -83,13 +102,13 @@ namespace LDraw
             }
 
             Version stepNumberVersion = new Version(stepNumber);
-            while(stepNumberVersion < currentStep.numberVersion && rootModel.PreviousStep())
+            while(stepNumberVersion < currentStep.NumberVersion && rootModel.PreviousStep())
             {
                 currentStep = GetCurrentStep();
                 yield return new WaitForSeconds(STEP_SPEED);
             }
 
-            while (stepNumberVersion > currentStep.numberVersion && rootModel.NextStep())
+            while (stepNumberVersion > currentStep.NumberVersion && rootModel.NextStep())
             {
                 currentStep = GetCurrentStep();
                 yield return new WaitForSeconds(STEP_SPEED);

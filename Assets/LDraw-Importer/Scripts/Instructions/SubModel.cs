@@ -6,29 +6,42 @@ namespace LDraw
 {
     public class SubModel : MonoBehaviour
     {
-        public int currPartIdx = 0;
-        public bool isRoot;
+        // Inspector fields
 
-        public Vector3 startPosition;
-        public Vector3 finalPosition;
+        [SerializeField]
+        [Tooltip("Which part or step the model is currently on.")]
+        int currPartIdx = 0;
 
-        void Awake()
+        // Public properties
+
+        // None of these have inspector fields so can be autos
+        public bool IsRoot { get; set; }
+
+        public Vector3 StartPosition { get; set; }
+
+        public Vector3 FinalPosition { get; set; }
+
+        // Unity lifecycle methods
+
+        void Start()
         {
-            if (!isRoot)
+            if (!IsRoot)
             {
                 int stepIdx = transform.GetSiblingIndex() + 1;
-                Vector3 animationDirection = transform.parent.GetChild(stepIdx).GetComponent<Step>().animationDirection;
-                finalPosition = transform.localPosition;
-                startPosition = finalPosition + (animationDirection * Step.ANIMATION_DISTANCE);
+                Vector3 animationDirection = transform.parent.GetChild(stepIdx).GetComponent<Step>().AnimationDirection;
+                FinalPosition = transform.localPosition;
+                StartPosition = FinalPosition + (animationDirection * Step.ANIMATION_DISTANCE);
             }
         }
+
+        // Public methods
 
         public string PrepareSteps(string stepNumberPrefix, bool clear)
         {
             currPartIdx = 0;
             int stepNumber = 1;
             string nestedSubModelLastStepNumber = string.Empty;
-            if (!isRoot) stepNumberPrefix += '.';
+            if (!IsRoot) stepNumberPrefix += '.';
 
             while (currPartIdx < transform.childCount)
             {
@@ -37,10 +50,10 @@ namespace LDraw
                 Step nestedStep = currPart.GetComponent<Step>();
                 if (nestedStep != null)
                 {
-                    if (nestedStep.number.Length != 0)
+                    if (nestedStep.Number.Length != 0)
                     {
                         // Re-number using custom scheme
-                        string[] nestedStepNumberParts = nestedStep.number.Split('.');
+                        string[] nestedStepNumberParts = nestedStep.Number.Split('.');
                         stepNumber = int.Parse(nestedStepNumberParts.Last());
                         nestedStepNumberParts[nestedStepNumberParts.Length - 1] = string.Empty;
                         stepNumberPrefix = string.Join(".", nestedStepNumberParts);
@@ -48,15 +61,15 @@ namespace LDraw
                     }
                     else if (nestedSubModelLastStepNumber.Length != 0)
                     {
-                        nestedStep.number = nestedSubModelLastStepNumber;
+                        nestedStep.Number = nestedSubModelLastStepNumber;
                         nestedSubModelLastStepNumber = string.Empty;
                     }
                     else
                     {
-                        nestedStep.number = stepNumberPrefix + stepNumber;
+                        nestedStep.Number = stepNumberPrefix + stepNumber;
                     }
-                    nestedStep.numberVersion = new Version(nestedStep.number);
-                    if (!nestedStep.isSubStep) stepNumber++;
+                    nestedStep.NumberVersion = new Version(nestedStep.Number);
+                    if (!nestedStep.IsSubStep) stepNumber++;
                     continue;
                 }
 
@@ -93,7 +106,7 @@ namespace LDraw
                 SubModel nestedSubModel = currPart.GetComponent<SubModel>();
                 if (nestedSubModel != null)
                 {
-                    nestedSubModel.transform.localPosition = nestedSubModel.startPosition;
+                    nestedSubModel.transform.localPosition = nestedSubModel.StartPosition;
                     if (!nestedSubModel.NextStep())
                     {
                         continue;
@@ -120,7 +133,7 @@ namespace LDraw
                 SubModel currentSubModel = currPart.GetComponent<SubModel>();
                 if (currentSubModel != null)
                 {
-                    currentSubModel.transform.localPosition = currentSubModel.startPosition;
+                    currentSubModel.transform.localPosition = currentSubModel.StartPosition;
                     return true;
                 }
             }
@@ -138,7 +151,7 @@ namespace LDraw
                 SubModel nestedSubModel = currPart.GetComponent<SubModel>();
                 if (nestedSubModel != null)
                 {
-                    nestedSubModel.transform.localPosition = nestedSubModel.startPosition;
+                    nestedSubModel.transform.localPosition = nestedSubModel.StartPosition;
                     if (!nestedSubModel.PreviousStep())
                     {
                         continue;
