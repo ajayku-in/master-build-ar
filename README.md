@@ -17,12 +17,13 @@ To try this project in AR check out the repository and switch to the Android  or
 
 ## References
 
+### AR in Unity fundamentals
+https://www.youtube.com/watch?v=7dvy7L9cDfE
+
 ### AR Foundation Samples
-
-Repository: https://github.com/Unity-Technologies/arfoundation-samples
-
-Tutorial: https://www.youtube.com/watch?v=7dvy7L9cDfE
+https://github.com/Unity-Technologies/arfoundation-samples
 
 ### LDraw Importer
+https://github.com/arjundube/LDraw_Importer_Unity
 
-Repository: https://github.com/arjundube/LDraw_Importer_Unity
+
