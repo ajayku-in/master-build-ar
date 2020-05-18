@@ -15,7 +15,6 @@
     "com.unity.xr.arfoundation": "4.0.0-preview.1",
     "com.unity.xr.arkit": "4.0.0-preview.1",
     "com.unity.xr.arkit-face-tracking": "4.0.0-preview.1",
-    "com.unity.xr.magicleap": "file:../../../Unity-Technologies/com.unity.xr.magicleap",
     "com.unity.xr.legacyinputhelpers": "2.0.8",
     "com.unity.modules.ai": "1.0.0",
     "com.unity.modules.androidjni": "1.0.0",
